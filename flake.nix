@@ -1,8 +1,8 @@
 {
-  description = "My Nix packages";
+  description = "My personalized tmux flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     unstable.url = "github:nixos/nixpkgs";
 
     snowfall = {
@@ -16,7 +16,7 @@
       inherit inputs;
       src = ./.;
 
-      overlay-package-namespace = "plusultra";
+      overlay-package-namespace = "rr-sv";
 
       alias.packages.default = "tmux";
     };

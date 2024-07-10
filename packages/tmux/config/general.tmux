@@ -1,49 +1,64 @@
-# Lower delay waiting for chord after escape key press.
-set -g escape-time 0
 
-# Change the prefix from C-b to C-s to make it easier to type.
-set -g prefix C-s
-unbind C-b
-bind C-s send-prefix
+# Reload tmux config
+bind r source-file ~/.config/tmux/tmux.conf
 
-# Start window numbers at 1 rather than 0.
-set -g base-index 1
-setw -g pane-base-index 1
-
-# Use h, j, k, l for movement between panes.
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-
-# Fix colors being wrong in programs like Neovim.
-set-option -ga terminal-overrides ",xterm-256color:Tc"
-
-# Expand the left status to accomodate longer session names.
-set-option -g status-left-length 100
-set-option -g status-right-length 100
-
-# One of the plugins binds C-l, make sure we have accces to it.
-unbind C-l
-bind -n C-l send-keys C-l
-
-# Don't require a prompt to detach from the current session.
-unbind -n M-E
-bind -n M-E detach-client
+# Aggressively resize.
+setw -g aggressive-resize on
 
 # Reload tmux configuration from ~/.config/tmux/tmux.conf instead
 # of Tilish's default of ~/.tmux.conf.
 unbind -n M-C
+
+# Don't require a prompt to detach from the current session.
+unbind -n M-E
+bind -n M-E detach-client
 bind -n M-C source-file "~/.config/tmux/tmux.conf"
 
-# Use M-z to zoom and unzoom panes.
-bind -n M-z resize-pane -Z
+# Set default terminal
+# set -g default-terminal "tmux-256color"
+set-option -ga terminal-overrides ",*:Tc"
+# set-option -sa terminal-features ',tmux-256color:RGB'
 
-# Increase the default history limit.
+# Set scrollback buffer to 10000
 set -g history-limit 2000
 
-# Use 24 hour clock.
-setw -g clock-mode-style 24
+# Set default shell in tmux
+set -g default-shell /run/current-system/sw/bin/zsh
 
-# Aggressively resize.
-setw -g aggressive-resize on
+# Screen Saver
+set -g lock-after-time 500
+set -g lock-command "asciiquarium"
+
+# Lower delay waiting for chord after escape key press.
+set -g escape-time 10
+
+# Binding prefix to CTRL+SPACE
+unbind C-b
+set -g prefix C-Space
+
+# Start windows at 1, instead of 0    
+set -g base-index 1 
+setw -g pane-base-index 1
+
+# Clipboard bindings
+bind-key y run "tmux save-buffer - | xclip -i sel clipboard"
+bind-key p run "xclip -o | tmux load-buffer - ; tmux paste-buffer"
+
+# Create bottom horizontal split-window
+bind-key h run "tmux splitw -fv; tmux resize-pane -D 15"
+
+## Use vim keybindings in copy mode
+set-option -g mouse on
+setw -g mode-keys vi
+set-option -s set-clipboard off
+bind P paste-buffer
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X rectangle-toggle
+unbind -T copy-mode-vi Enter
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel 'xclip -se c -i'
+bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel 'xclip -se c -i'
+
+# Set new panes to open in current directory
+bind c new-window -c "#{pane_current_path}"
+bind '"' split-window -c "#{pane_current_path}"
+bind % split-window -h -c "#{pane_current_path}"
